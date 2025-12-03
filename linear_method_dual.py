@@ -6,6 +6,16 @@
 # You should have received a copy of the license along with this
 # work.  If not, see <http://creativecommons.org/licenses/by-nc-nd/3.0/>.
 
+# Baseline dual-gripper picking heuristic (linear / greedy).
+#
+# - The robot has two grippers.
+# - It tries to serve KH slots in order, pairing them as (KH1, KH2)
+#     when possible:
+#       pick → pick → place → place
+# - If a second suitable GR node for KH2 is not reachable, it falls
+#     back to a simple:
+#       pick → place
+#     for KH1 only.
 def linear_picking_dual(
     B,
     start_node: str,
@@ -16,18 +26,7 @@ def linear_picking_dual(
     kh_types: dict,
     filtered_matrix=None,
 ):
-    """
-    Baseline dual-gripper picking heuristic (linear / greedy).
 
-    - The robot has two grippers.
-    - It tries to serve KH slots in order, pairing them as (KH1, KH2)
-        when possible:
-          pick → pick → place → place
-    - If a second suitable GR node for KH2 is not reachable, it falls
-        back to a simple:
-          pick → place
-        for KH1 only.
-    """
     # --- helpers ---
     distance_dict = {e["edge"]: e["distance"] for e in (filtered_matrix or [])}
 

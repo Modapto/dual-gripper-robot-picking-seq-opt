@@ -10,7 +10,20 @@ import json, random
 from time import time
 from dual_preprocessing import evaluate_methods_on_data, shuffle_gr_sequence
 
-
+# Run a dual-gripper simulation over multiple randomized GR configurations.
+#
+# This function:
+#   - Accepts an already-decoded `input_data` dict (no file I/O).
+#   - Evaluates the *baseline* GR configuration using both heuristic
+#     and linear methods.
+#   - Generates `num_random_gr_configs` alternative GR configurations
+#     by shuffling container positions.
+#   - For each randomized configuration, re-evaluates the methods.
+#   - Tracks the best configuration based on the heuristic cost.
+#   - Computes percentage improvement compared to the baseline.
+#
+# Raises:
+#     ValueError: If input_data is missing or has no "data" key.
 def run_dual_simulation(
     input_data: dict,
     use_prune: bool,
@@ -18,22 +31,6 @@ def run_dual_simulation(
     allow_cross_rack: bool,
     cross_gr_extra_bias: int
 ):
-    """
-    Run a dual-gripper simulation over multiple randomized GR configurations.
-
-    This function:
-      - Accepts an already-decoded `input_data` dict (no file I/O).
-      - Evaluates the *baseline* GR configuration using both heuristic
-        and linear methods.
-      - Generates `num_random_gr_configs` alternative GR configurations
-        by shuffling container positions.
-      - For each randomized configuration, re-evaluates the methods.
-      - Tracks the best configuration based on the heuristic cost.
-      - Computes percentage improvement compared to the baseline.
-
-    Raises:
-        ValueError: If input_data is missing or has no "data" key.
-    """
     t0 = int(time() * 1000)
 
     if not input_data or "data" not in input_data:

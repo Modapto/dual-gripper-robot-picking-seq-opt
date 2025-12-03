@@ -6,10 +6,34 @@
 # You should have received a copy of the license along with this
 # work.  If not, see <http://creativecommons.org/licenses/by-nc-nd/3.0/>.
 
-import json
 from time import time
 from dual_preprocessing import evaluate_methods_on_data
 
+# Run the dual-gripper optimization for a single input instance.
+#
+# This function:
+#   - Accepts already loaded `input_data` (no file I/O).
+#   - Reads configuration and `method` from `input_data["data"]`.
+#   - Evaluates both the heuristic and linear methods via
+#     `evaluate_methods_on_data`.
+#   - Depending on `method`, either:
+#       * returns only the heuristic result,
+#       * returns only the linear result, or
+#       * compares them (heuristic-linear) and returns the better one
+#         along with the percentage improvement.
+#
+# Returns:
+#     dict: Result dictionary with keys:
+#         - "optimization_run" (bool): True if the run completed.
+#         - "message" (str): Description of the run and selected method.
+#         - "solutionTime" (int): Elapsed time in milliseconds.
+#         - "optimization_results" (dict): Contains either:
+#             * {"heuristic": ...}, or
+#             * {"linear": ...}, or
+#             * {<winner_method>: ..., "improvement_percentage": float}
+#
+# Raises:
+#     ValueError: If `input_data` is missing or the method is unknown.
 def run_dual_optimization(
     input_data: dict,
     use_prune: bool,
@@ -17,33 +41,6 @@ def run_dual_optimization(
     allow_cross_rack: bool,
     cross_gr_extra_bias: int,
 ):
-    """
-    Run the dual-gripper optimization for a single input instance.
-
-    This function:
-      - Accepts already loaded `input_data` (no file I/O).
-      - Reads configuration and `method` from `input_data["data"]`.
-      - Evaluates both the heuristic and linear methods via
-        `evaluate_methods_on_data`.
-      - Depending on `method`, either:
-          * returns only the heuristic result,
-          * returns only the linear result, or
-          * compares them (heuristic-linear) and returns the better one
-            along with the percentage improvement.
-
-    Returns:
-        dict: Result dictionary with keys:
-            - "optimization_run" (bool): True if the run completed.
-            - "message" (str): Description of the run and selected method.
-            - "solutionTime" (int): Elapsed time in milliseconds.
-            - "optimization_results" (dict): Contains either:
-                * {"heuristic": ...}, or
-                * {"linear": ...}, or
-                * {<winner_method>: ..., "improvement_percentage": float}
-
-    Raises:
-        ValueError: If `input_data` is missing or the method is unknown.
-    """
     t0 = int(time() * 1000)
 
     if not input_data or "data" not in input_data:

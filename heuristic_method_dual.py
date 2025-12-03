@@ -7,8 +7,36 @@
 # work.  If not, see <http://creativecommons.org/licenses/by-nc-nd/3.0/>.
 
 import math
-from collections import Counter
 
+# Dual-gripper nearest-neighbor heuristic with batching.
+#
+# High-level idea:
+#     - The robot can hold up to `max_load` components at once.
+#     - We alternate between:
+#         1) PICK phase: move to GR nodes and pick components (up to max_load).
+#         2) PLACE phase: move to KH nodes and place components until the hand is empty.
+#     - We stop when all KH component demands are satisfied.
+#
+# Internal logic:
+#     - `remaining_slots_by_type`:
+#         A mapping type → set(KH slots) that still need this type.
+#     - PICK phase:
+#         From the current node, select among available GR nodes whose type
+#         is still needed. Among these, pick the nearest GR node according
+#         to the edge weight and add it to `tour` and `in_hand`.
+#     - PLACE phase:
+#         For each component in hand, look for the nearest KH node that:
+#             * still needs that component type, and
+#             * is reachable from the current node.
+#         Among all candidate (component, KH) pairs, choose the move with
+#         minimum distance. Update `tour`, current node, and remaining demand.
+#     - If the algorithm gets temporarily stuck during placement, it moves
+#       to the nearest reachable KH to unblock progress.
+#
+# Special moves:
+#     - After all KH demands are satisfied, if there is an edge from the
+#       current node to `end`, we move to `end`.
+#     - If there is an edge from `end` to `start`, we finally return to `start`.
 def nearest_tsp_dual(
     G,
     start: str,
@@ -20,38 +48,6 @@ def nearest_tsp_dual(
     max_load: int = 2,
     verbose: bool = False,
 ):
-    """
-    Dual-gripper nearest-neighbor heuristic with batching.
-
-    High-level idea:
-        - The robot can hold up to `max_load` components at once.
-        - We alternate between:
-            1) PICK phase: move to GR nodes and pick components (up to max_load).
-            2) PLACE phase: move to KH nodes and place components until the hand is empty.
-        - We stop when all KH component demands are satisfied.
-
-    Internal logic:
-        - `remaining_slots_by_type`:
-            A mapping type → set(KH slots) that still need this type.
-        - PICK phase:
-            From the current node, select among available GR nodes whose type
-            is still needed. Among these, pick the nearest GR node according
-            to the edge weight and add it to `tour` and `in_hand`.
-        - PLACE phase:
-            For each component in hand, look for the nearest KH node that:
-                * still needs that component type, and
-                * is reachable from the current node.
-            Among all candidate (component, KH) pairs, choose the move with
-            minimum distance. Update `tour`, current node, and remaining demand.
-        - If the algorithm gets temporarily stuck during placement, it moves
-          to the nearest reachable KH to unblock progress.
-
-    Special moves:
-        - After all KH demands are satisfied, if there is an edge from the
-          current node to `end`, we move to `end`.
-        - If there is an edge from `end` to `start`, we finally return to `start`.
-    """
-
     def w(u, v):
         return G[u][v]["weight"] if G.has_edge(u, v) else float("inf")
 
@@ -164,11 +160,8 @@ def nearest_tsp_dual(
 
     return tour
 
-
+# Compute total travel cost and per-step details for a tour.
 def total_cost(G, tour):
-    """
-    Compute total travel cost and per-step details for a tour.
-    """
     cost = 0
     time_details = []
     for i in range(len(tour) - 1):

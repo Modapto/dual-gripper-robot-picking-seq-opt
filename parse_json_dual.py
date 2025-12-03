@@ -8,21 +8,18 @@
 
 import pandas as pd
 
+# Build a square distance matrix (DataFrame) from an edge list for the dual-gripper setup.
+#
+# Steps:
+#     1. Collect all unique node names appearing in the edge list.
+#     2. Initialize a DataFrame with all nodes as both rows and columns,
+#        filled with `large_number` as default.
+#     3. For each edge "(source, target)", set the corresponding cell to
+#        the given distance value.
+#     4. Reorder rows/columns so that:
+#          - kit holders (len(name.split('.')) == 2 or "0.0") come first
+#          - gravity racks (len(...) == 3 or "0.0.0") come afterwards
 def create_distance_matrices(input_json, large_number=1000000):
-    """
-    Build a square distance matrix (DataFrame) from an edge list for the dual-gripper setup.
-
-    Steps:
-        1. Collect all unique node names appearing in the edge list.
-        2. Initialize a DataFrame with all nodes as both rows and columns,
-           filled with `large_number` as default.
-        3. For each edge "(source, target)", set the corresponding cell to
-           the given distance value.
-        4. Reorder rows/columns so that:
-             - kit holders (len(name.split('.')) == 2 or "0.0") come first
-             - gravity racks (len(...) == 3 or "0.0.0") come afterwards
-
-    """
     edges = input_json["data"]["distance_matrix"]
     all_nodes = set()
 

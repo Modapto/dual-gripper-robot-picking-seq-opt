@@ -26,26 +26,21 @@ ALLOWED_OPT_METHODS = {"heuristic", "linear", "heuristic-linear"}
 SIMULATION_METHOD = "simulation"
 
 
+# Write a Python object as JSON to the given file path.
 def write_output(path, data):
-    """
-    Write a Python object as JSON to the given file path.
-    """
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
     print(f"Wrote {path}")
 
-
+# Route a single dual-gripper request to either optimization or simulation.
+#
+# The function:
+#     - Reads the `method` field from the `data` block (or from `msg`).
+#     - If method == "simulation", calls `run_dual_simulation`.
+#     - If method is in ALLOWED_OPT_METHODS, calls `run_dual_optimization`.
+#     - Writes the corresponding JSON output file.
+#     - Returns the result dictionary from the chosen routine.
 def run_from_msg(msg: dict):
-    """
-     Route a single dual-gripper request to either optimization or simulation.
-
-     The function:
-         - Reads the `method` field from the `data` block (or from `msg`).
-         - If method == "simulation", calls `run_dual_simulation`.
-         - If method is in ALLOWED_OPT_METHODS, calls `run_dual_optimization`.
-         - Writes the corresponding JSON output file.
-         - Returns the result dictionary from the chosen routine.
-     """
     data = msg.get("data", msg)
     method = data.get("method", "heuristic")
 
@@ -73,24 +68,21 @@ def run_from_msg(msg: dict):
 
     raise ValueError(f"Unknown method '{method}'.")
 
-
+# Command-line entry point for dual-gripper optimization/simulation.
+#
+# Behavior:
+#     - If no JSON path is provided via command-line, uses DEFAULT_JSON.
+#     - Loads the JSON file into a Python dict.
+#     - Passes the message to `run_from_msg` for processing.
+#
+# Command-line usage:
+#     python main.py [optional_input_path]
+#
+# Where:
+#     optional_input_path (str, optional):
+#         Path to a JSON file containing the "data" block and `method`.
+#         If omitted, DEFAULT_JSON is used.
 def main():
-    """
-    Command-line entry point for dual-gripper optimization/simulation.
-
-    Behavior:
-        - If no JSON path is provided via command-line, uses DEFAULT_JSON.
-        - Loads the JSON file into a Python dict.
-        - Passes the message to `run_from_msg` for processing.
-
-    Command-line usage:
-        python main.py [optional_input_path]
-
-    Where:
-        optional_input_path (str, optional):
-            Path to a JSON file containing the "data" block and `method`.
-            If omitted, DEFAULT_JSON is used.
-    """
     if len(sys.argv) < 2:
         json_path = DEFAULT_JSON
         print(f"(no arg given) → using default JSON: {json_path}")

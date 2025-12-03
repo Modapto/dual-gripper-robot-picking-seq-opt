@@ -8,26 +8,24 @@
 
 import networkx as nx
 
+# Create a directed bipartite graph for the dual-gripper setup.
+#
+# The function interprets the distance matrix as a bipartite graph between:
+#     - set_1: KH (kit holder) nodes, including the pseudonode '0.0'
+#     - set_2: GR (gravity rack) nodes, including the pseudonode '0.0.0'
+#
+# Node classification is based on the name format:
+#     - Nodes with two dot-separated parts (e.g. "1.1") or "0.0" → KH side (set_1).
+#     - Nodes with three dot-separated parts (e.g. "1.1.3") or "0.0.0" → GR side (set_2).
+#
+# Special edge rules:
+#     - 0.0   → GR (all GR nodes except '0.0.0')
+#     - KH    → 0.0.0 (all KH nodes except '0.0')
+#     - 0.0.0 → 0.0   (single closing edge with fixed weight 1)
+#     - KH ↔ GR       (bidirectional edges where distance < 1,000,000)
+#     - KH → KH       (only between `active_kh_positions`, excluding '0.0')
+#     - GR → GR       (all GR→GR edges except those involving '0.0.0')
 def create_directed_bipartite_graph(a_to_b_matrix,active_kh_positions, large_number=1000000):
-    """
-    Create a directed bipartite graph for the dual-gripper setup.
-
-    The function interprets the distance matrix as a bipartite graph between:
-        - set_1: KH (kit holder) nodes, including the pseudonode '0.0'
-        - set_2: GR (gravity rack) nodes, including the pseudonode '0.0.0'
-
-    Node classification is based on the name format:
-        - Nodes with two dot-separated parts (e.g. "1.1") or "0.0" → KH side (set_1).
-        - Nodes with three dot-separated parts (e.g. "1.1.3") or "0.0.0" → GR side (set_2).
-
-    Special edge rules:
-        - 0.0   → GR (all GR nodes except '0.0.0')
-        - KH    → 0.0.0 (all KH nodes except '0.0')
-        - 0.0.0 → 0.0   (single closing edge with fixed weight 1)
-        - KH ↔ GR       (bidirectional edges where distance < 1,000,000)
-        - KH → KH       (only between `active_kh_positions`, excluding '0.0')
-        - GR → GR       (all GR→GR edges except those involving '0.0.0')
-    """
     B = nx.DiGraph()
 
     # Define node groups
