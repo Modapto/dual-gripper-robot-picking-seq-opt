@@ -1,12 +1,12 @@
 ## Description
 
-This code is designed to optimize the robot picking sequence in a bipartite setting with a **dual gripper**.  
+This code is designed to optimize the robot picking sequence in a bipartite setting with a dual gripper.  
 The objective is to minimize the total travel time required for the robot to:
 
 - pick components from Gravity Rack (GR) positions, and  
 - place them into the correct Kit Holder (KH) slots,
 
-while the robot can carry **up to two components at the same time**.
+while the robot can carry up to two components at the same time.
 
 In the real-world application, we work with a detailed mapping between containers, Gravity Rack positions and Kit Holders.  
 Each KH position requires specific component types, and each GR pocket provides specific components.  
@@ -27,10 +27,10 @@ It can run in two modes, depending on the `method` field inside the JSON input:
 - `method = "heuristic"`  
 - `method = "linear"`  
 - `method = "heuristic-linear"`  
-  → run **optimization** (dual-gripper heuristic / linear).
+  → run optimization (dual-gripper heuristic / linear).
 
 - `method = "simulation"`  
-  → run **simulation** (random GR layouts with the dual gripper).
+  → run simulation (random GR layouts with the dual gripper).
 
 ## How to use Optimization / Simulation (dual gripper)
 
@@ -42,7 +42,7 @@ It can run in two modes, depending on the `method` field inside the JSON input:
   - `"heuristic-linear"` – run both methods and keep the one with the better (lower) total cost.
 
 - **Simulation (dual-gripper)**  
-  The simulation mode (`method = "simulation"`) keeps the same GR/KH mapping but **changes the GR layout**.  
+  The simulation mode (`method = "simulation"`) keeps the same GR/KH mapping but changes the GR layout.  
   Starting from a baseline `gr_sequence`, the service generates multiple randomized GR configurations (controlled by `num_random_gr_configs`) and evaluates them with the same dual-gripper logic.  
   The result reports the baseline costs and the best found GR configuration with its improvement over the baseline.
 
@@ -55,7 +55,7 @@ All use cases follow the same basic envelope:
   - a `method` field that controls which mode is used, and  
   - the configuration fields (templates, GR layout, etc.).
 
-Typical fields inside `data` for the **dual-gripper service** are:
+Typical fields inside `data` for the dual-gripper service are:
 
 - For **dual-gripper optimization** (`method = "heuristic"`, `"linear"`, `"heuristic-linear"`): 
 
