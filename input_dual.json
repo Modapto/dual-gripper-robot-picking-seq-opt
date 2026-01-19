@@ -1,7 +1,5 @@
 {
-  "route": "robot-pick-seq-opt",
-  "uuid": "20575aa3-a69a-46e1-83b3-7e4ee2d68601",
-  "generated_at": 1736414971,
+  "route": "dual-gripper-robot-picking-seq",
   "data": {
     "method": "heuristic",
     "gr_sequence": [
