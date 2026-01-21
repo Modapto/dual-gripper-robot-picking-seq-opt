@@ -164,7 +164,7 @@ def main():
             json_path = DEFAULT_JSON
             print(f"(no arg given) → using default JSON: {json_path}")
         else:
-            json_path = sys.argv[1]
+            json_path = sys.argv[2]
 
         with open(json_path, "r") as f:
             msg = json.load(f)
